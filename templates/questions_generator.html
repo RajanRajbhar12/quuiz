@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-image: url('/static/●⌇\ \ Nezuko\ &\ Tanjiro.jpg');
+            backdrop-filter: 20px;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: inherit;
+            background-size: cover;
+            background-position: center;
+            filter: blur(10px); /* Adjust blur intensity */
+            z-index: -1; /* Ensures it stays behind the content */
+   
+}
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            resize: none;
+            font-size: 16px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 50px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .question-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .question-list p {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            textarea {
+                height: 150px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text to Questions Generator</h1>
+        <textarea id="inputText" placeholder="Paste your text here..." required></textarea>
+        <div>
+            <label>Number of questions: </label>
+            <input type="number" id="numQuestions" value="5" min="1" max="20" required>
+            <button onclick="generateQuestions()">Generate Questions</button>
+        </div>
+        
+        <div class="question-list" id="results"></div>
+    </div>
+
+    <script>
+        async function generateQuestions() {
+            const inputText = document.getElementById('inputText').value;
+            const numQuestions = document.getElementById('numQuestions').value;
+            
+            if (!inputText) {
+                alert('Please enter some text');
+                return;
+            }
+
+            try {
+                const response = await fetch('/generate-questions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        input_text: inputText,
+                        num_questions: numQuestions
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<h3>Generated Questions:</h3>';
+                
+                data.questions.forEach((question, index) => {
+                    resultsDiv.innerHTML += `
+                        <div class="question">
+                            <p>${index + 1}. ${question}</p>
+                        </div>
+                    `;
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate questions');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate MCQ</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #000000;
+            background-position: center;
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            width: 100%;
+        }
+
+        /* Create a container for content */
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        h1, form, #question-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Mobile background (screens smaller than 768px) */
+        @media screen and (max-width: 767px) {
+            body {
+                background-image: url('/static/Luffy\ _\ One\ Piece\ Wallpaper.jpg');
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+        }
+
+        /* Desktop background (screens 768px and larger) */
+        @media screen and (min-width: 768px) {
+            body {
+                background-image: url('/static/Demon\ slayer\ tanjiro\ wallpaper\ 1920x1080\ laptop\ desktop\ 4k\ hd\ wpp\ 🎀.jpg');
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            
+            .content-container {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+        }
+
+        .question {
+            margin: 30px 0;
+            padding: 25px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .question ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .question li {
+            margin: 12px 0;
+        }
+
+        .question button {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .question button:hover {
+            background-color: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .question button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 16px;
+            padding: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button[type="submit"] {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1976D2;
+        }
+
+        h1 {
+            color: #000000;
+            font-weight: 500;
+        }
+
+        label {
+
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate MCQ</h1>
+    <!-- Add audio elements -->
+    <audio id="correctSound" src="/static/correct.mp3"></audio>
+    <audio id="wrongSound" src="/static/wrong.mp3"></audio>
+    
+    <!-- Add score container -->
+    <div id="score-container" style="text-align: center; margin: 20px;">
+        <h3>Score: <span id="correct-count">0</span> / <span id="total-questions">0</span></h3>
+    </div>
+
+    <form id="question-form">
+        <label for="input_text">Enter Text:</label>
+        <textarea id="input_text" name="input_text" rows="4" cols="50"></textarea><br>
+
+        <label for="num_questions">Number of Questions:</label>
+        <input type="number" id="num_questions" name="num_questions" min="1" max="10" value="1"><br><br>
+
+        <button type="submit">Generate Questions</button>
+    </form>
+
+    <div id="question-container"></div>
+
+    <script>
+        // AJAX form submission
+        $('#question-form').on('submit', function(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            const input_text = $('#input_text').val();
+            const num_questions = $('#num_questions').val();
+
+            // Send AJAX request to the backend
+            $.ajax({
+                url: '/mcq',
+                type: 'POST',
+                data: {
+                    input_text: input_text,
+                    num_questions: num_questions
+                },
+                success: function(response) {
+                    console.log('Server response:', response);
+                    
+                    if (response.error) {
+                        console.error('Server error:', response.error);
+                        $('#question-container').html(`<h3 class="error">Error: ${response.error}</h3>`);
+                        return;
+                    }
+                    
+                    if (!response.questions || !Array.isArray(response.questions) || response.questions.length === 0) {
+                        console.error('Invalid response format:', response);
+                        $('#question-container').html('<h3 class="error">Error: No questions received</h3>');
+                        return;
+                    }
+
+                    console.log(`Received ${response.questions.length} questions`);
+                    displayQuestions(response.questions);
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', {xhr, status, error});
+                    $('#question-container').html(`<h3 class="error">Server error: ${error}</h3>`);
+                }
+            });
+        });
+
+        function displayQuestions(questions) {
+            console.log('Displaying questions:', questions);
+            const questionContainer = document.getElementById('question-container');
+            questionContainer.innerHTML = ''; // Clear any existing questions
+            let currentQuestionIndex = 0;
+            let correctAnswers = 0; // Track correct answers
+
+            // Update total questions count
+            document.getElementById('total-questions').textContent = questions.length;
+
+            function showQuestion(index) {
+                console.log(`Showing question ${index + 1} of ${questions.length}`);
+                
+                if (index >= questions.length) {
+                    questionContainer.innerHTML = `<h3>Quiz Complete! 🎉</h3>
+                        <p>You got ${correctAnswers} out of ${questions.length} questions correct!</p>`;
+                    return;
+                }
+
+                const question = questions[index];
+                // Create a new div for each question
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+
+                // Add the question text
+                const questionText = document.createElement('p');
+                questionText.textContent = `Question ${index + 1} of ${questions.length}: ${question.question}`;
+
+                // Create a list of options
+                const optionsList = document.createElement('ul');
+                
+                // Add a div to show the answer feedback
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.style.display = 'none';
+                feedbackDiv.classList.add('feedback');
+                
+                // Loop through the options list
+                question.options.forEach((option) => {
+                    const optionItem = document.createElement('li');
+                    const optionButton = document.createElement('button');
+                    // Remove the letter prefix (A:, B:, C:, D:) from the display
+                    optionButton.textContent = option.substring(2).trim();
+                    
+                    optionButton.addEventListener('click', function() {
+                        // Disable all buttons after selection
+                        optionsList.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                        
+                        const isCorrect = option.startsWith(`${question.correct_answer}:`);
+                        if (isCorrect) {
+                            document.getElementById('correctSound').play();
+                            correctAnswers++;
+                            document.getElementById('correct-count').textContent = correctAnswers;
+                        } else {
+                            document.getElementById('wrongSound').play();
+                        }
+
+                        feedbackDiv.textContent = isCorrect ? 
+                            '✅ Correct!' : 
+                            `❌ Incorrect! The correct answer was: ${question.options.find(opt => opt.startsWith(question.correct_answer + ':')).substring(2).trim()}`;
+                        feedbackDiv.style.color = isCorrect ? 'green' : 'red';
+                        feedbackDiv.style.display = 'block';
+                        
+                        // Show next question after 1.5 seconds
+                        setTimeout(() => {
+                            currentQuestionIndex++;
+                            showQuestion(currentQuestionIndex);
+                        }, 1500);
+                    });
+
+                    optionItem.appendChild(optionButton);
+                    optionsList.appendChild(optionItem);
+                });
+
+                questionDiv.appendChild(questionText);
+                questionDiv.appendChild(optionsList);
+                questionDiv.appendChild(feedbackDiv);
+                
+                questionContainer.innerHTML = ''; // Clear previous question
+                questionContainer.appendChild(questionDiv);
+            }
+
+            // Start with the first question
+            showQuestion(currentQuestionIndex);
+        }
+    </script>
+</body>
+</html>

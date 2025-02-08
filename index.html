@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quizzes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        beige: '#F5F5DC',
+                    },
+                    fontFamily: {
+                        'space-grotesk': ['Space Grotesk', 'sans-serif'],
+                    },
+                }
+            }
+        }
+
+        // Slideshow functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            
+            function showSlide(index) {
+                slides.forEach(slide => slide.classList.add('hidden'));
+               
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            // Auto advance slides every 3 seconds
+            setInterval(nextSlide, 3000);
+            showSlide(0);
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Add fade-in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+        }
+
+        .fade-in.active {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+
+        .delay-400 {
+            animation-delay: 400ms;
+        }
+    </style>
+</head>
+<body class="bg-blue-500 text-white">
+    <!-- Navigation -->
+    <nav class="bg-white-500 p-4 sticky top-0">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="#" class="text-white">
+                    <i class="fas fa-brain text-white text-2xl"></i>
+                </a>
+            </div>
+            <div class="text-center flex-1">
+                <span class="text-white text-xl font-bold">QuizWiz</span>
+            </div>
+            <div class="flex items-center">
+                <a href="#" class="text-white">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 py-20">
+        <div class="text-center max-w-4xl mx-auto">
+            <h1 class="text-6xl font-bold mb-4 leading-tight fade-in">
+                Enhance<br>
+                Engagement with<br>
+                AI Quizzes
+            </h1>
+            <p class="text-lg text-white mb-8 max-w-2xl mx-auto fade-in delay-200">
+                Boost your learning (or frustration) with QuizWiz, an AI-driven platform where wrong answers are celebrated, and questions make you question your existence! 😜
+            </p>
+            <a href="/templates/start.html" class="inline-block bg-yellow-500 text-black font-semibold py-3 px-8 rounded-lg hover:bg-opacity-90 transition duration-300 fade-in delay-400">
+                Get Started
+            </a>
+        </div>
+    </div>
+    <main>
+    <!-- Features Section -->
+    <section class="py-20 bg-black">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12 fade-in">Why Choose QuizWiz?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- AI-Powered Feature -->
+                <div class="p-6 rounded-lg bg-blue-500 fade-in">
+                    <i class="fas fa-robot text-3xl text-beige mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">AI-Powered Generation</h3>
+                    <p class="text-black-400">Create professional quizzes instantly with our advanced AI technology.</p>
+                </div>
+                
+                <!-- Customization Feature -->
+                <div class="p-6 rounded-lg bg-blue-500 fade-in">
+                    <i class="fas fa-sliders-h text-3xl text-beige mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Full Customization</h3>
+                    <p class="text-black-400">Tailor questions, difficulty levels, and formats to match your needs.</p>
+                </div>
+                
+                <!-- Analytics Feature -->
+                <div class="p-6 rounded-lg bg-blue-500 fade-in">
+                    <i class="fas fa-chart-line text-3xl text-beige mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Detailed Generation</h3>
+                    <p class="text-black-400">Get detailed generation of questions and answers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    </main>
+    
+    <!-- Footer -->
+    
+    <script>
+        // Add this after your existing scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
