@@ -4,8 +4,7 @@ import random
 
 app = Flask(__name__)
 
-# Initialize Cohere API
-co = cohere.Client('KVaVk5g8ERlIP02OZJ5tZ3Jz8HcA3nthd9eqxmNP')  # Replace with your API key
+co = cohere.Client(os.getenv('COHERE_API_KEY')) 
 
 def generate_questions_from_text(input_text, question_type, num_questions):
     try:
