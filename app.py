@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import cohere
 import random
+import os
 
 app = Flask(__name__)
 
